@@ -109,7 +109,6 @@ responseBody.addEventListener('click', async function addItem(event) {
 
         clearSearchBody();
 
-        event.target.removeEventListener('click', addItem);
     }
 })
 
