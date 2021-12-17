@@ -2,6 +2,8 @@ const mainSearch = document.querySelector('.main-input');
 const responseBody = document.querySelector('.response-body');
 const finalRepoList = document.querySelector('.final-repo-list');
 const searchMessage = document.querySelector('.search-message');
+let resultArr = [];
+
 
 function addItems(itemList, callback, parentNode) {
     const tempFragment = document.createDocumentFragment();
@@ -18,12 +20,20 @@ function createSearchItem(item) {
     let singleItem = document.createElement('a');
     singleItem.classList.add('single-search-item');
     singleItem.textContent = item.name;
+    singleItem.setAttribute('data-repo-id', item.id);
     return singleItem;
 }
 
 function createRepoItem(item) {
     let repoItem = document.createElement('div');
     repoItem.classList.add('single-repo-item');
+
+    let closeButton = document.createElement('button');
+    closeButton.classList.add('single-repo-item__close-button');
+    closeButton.innerHTML = 'Delete';
+
+    repoItem.append(closeButton);
+
     let repoProperty = {
         name: item.name,
         owner: item.owner['login'],
@@ -37,6 +47,18 @@ function createRepoItem(item) {
     return repoItem;
 }
 
+function clearSearchBody() {
+    responseBody.innerHTML = '';
+}
+
+function clearResultBlock() {
+    finalRepoList.innerHTML = '';
+}
+
+function clearSearchInput() {
+    mainSearch.value = "";
+}
+
 async function getSearchList(event) {
     searchMessage.classList.remove('show');
     let requestText = event.target.value;
@@ -47,13 +69,14 @@ async function getSearchList(event) {
     if (response.ok) {
         let repoList = await response.json();
         repoList = repoList.items;
+        resultArr = repoList;
 
         if (repoList.length === 0) {
             searchMessage.classList.add('show');
         }
 
-        responseBody.innerHTML = '';
-        finalRepoList.innerHTML = '';
+        clearSearchBody();
+        clearResultBlock();
 
         addItems(repoList, createSearchItem, responseBody)
     } else {
@@ -77,14 +100,25 @@ const debounce = (fn, delay) => {
 getSearchList = debounce(getSearchList, 500);
 
 mainSearch.addEventListener('keyup', getSearchList);
-responseBody.addEventListener('click', async function (event) {
+responseBody.addEventListener('click', async function addItem(event) {
     if (event.target.className === 'single-search-item') {
-        finalRepoList.innerHTML = '';
-        let reposName = event.target.textContent;
-        let response = await fetch(`https://api.github.com/search/repositories?q=${reposName}&per_page=5`);
-        let repoInfo = await response.json();
-        repoInfo = repoInfo.items;
-        addItems(repoInfo, createRepoItem, finalRepoList);
-        mainSearch.value = '';
+        let singleItemId = event.target.dataset.repoId;
+        let finalArr = resultArr.filter(el => el.id == singleItemId);
+
+        addItems(finalArr, createRepoItem, finalRepoList);
+
+        clearSearchBody();
+
     }
 })
+
+finalRepoList.addEventListener('click', function removeItem(event) {
+    if (event.target.className = 'single-repo-item__close-button') {
+
+        clearSearchInput();
+        clearResultBlock();
+
+        event.target.removeEventListener('click', removeItem);
+    }
+})
+
