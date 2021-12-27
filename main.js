@@ -51,10 +51,6 @@ function clearSearchBody() {
     responseBody.innerHTML = '';
 }
 
-function clearResultBlock() {
-    finalRepoList.innerHTML = '';
-}
-
 function clearSearchInput() {
     mainSearch.value = "";
 }
@@ -76,7 +72,6 @@ async function getSearchList(event) {
         }
 
         clearSearchBody();
-        clearResultBlock();
 
         addItems(repoList, createSearchItem, responseBody)
     } else {
@@ -107,8 +102,9 @@ responseBody.addEventListener('click', async function addItem(event) {
 
         addItems(finalArr, createRepoItem, finalRepoList);
 
-        clearSearchBody();
+        event.target.removeEventListener('click', addItem);
 
+        clearSearchBody();
     }
 })
 
@@ -116,7 +112,6 @@ finalRepoList.addEventListener('click', function removeItem(event) {
     if (event.target.className = 'single-repo-item__close-button') {
 
         clearSearchInput();
-        clearResultBlock();
 
         event.target.removeEventListener('click', removeItem);
     }
