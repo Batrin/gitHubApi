@@ -95,14 +95,12 @@ const debounce = (fn, delay) => {
 getSearchList = debounce(getSearchList, 500);
 
 mainSearch.addEventListener('keyup', getSearchList);
-responseBody.addEventListener('click', async function addItem(event) {
+responseBody.addEventListener('click', function addItem(event) {
     if (event.target.className === 'single-search-item') {
         let singleItemId = event.target.dataset.repoId;
         let finalArr = resultArr.filter(el => el.id == singleItemId);
 
         addItems(finalArr, createRepoItem, finalRepoList);
-
-        event.target.removeEventListener('click', addItem);
 
         clearSearchBody();
     }
