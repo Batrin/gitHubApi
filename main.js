@@ -47,8 +47,20 @@ function createRepoItem(item) {
     return repoItem;
 }
 
+function addItem(event) {
+    if (event.target.className === 'single-search-item') {
+        let singleItemId = event.target.dataset.repoId;
+        let finalArr = resultArr.filter(el => el.id == singleItemId);
+
+        addItems(finalArr, createRepoItem, finalRepoList);
+
+        clearSearchBody();
+    }
+}
+
 function clearSearchBody() {
     responseBody.innerHTML = '';
+    responseBody.removeEventListener('click', addItem);
 }
 
 function clearSearchInput() {
@@ -73,7 +85,8 @@ async function getSearchList(event) {
 
         clearSearchBody();
 
-        addItems(repoList, createSearchItem, responseBody)
+        addItems(repoList, createSearchItem, responseBody);
+        responseBody.addEventListener('click', addItem);
     } else {
         console.log('error');
     }
@@ -95,16 +108,6 @@ const debounce = (fn, delay) => {
 getSearchList = debounce(getSearchList, 500);
 
 mainSearch.addEventListener('keyup', getSearchList);
-responseBody.addEventListener('click', function addItem(event) {
-    if (event.target.className === 'single-search-item') {
-        let singleItemId = event.target.dataset.repoId;
-        let finalArr = resultArr.filter(el => el.id == singleItemId);
-
-        addItems(finalArr, createRepoItem, finalRepoList);
-
-        clearSearchBody();
-    }
-})
 
 finalRepoList.addEventListener('click', function removeItem(event) {
     if (event.target.className = 'single-repo-item__close-button') {
@@ -112,6 +115,8 @@ finalRepoList.addEventListener('click', function removeItem(event) {
         clearSearchInput();
 
         event.target.removeEventListener('click', removeItem);
+
+        event.target.parentNode.remove();
     }
 })
 
